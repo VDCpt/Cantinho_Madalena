@@ -54,13 +54,21 @@ body{font-family:var(--font-main);background:var(--bg-tertiary);color:var(--text
 
 /* WEEK NAV */
 .week-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px; flex-wrap: wrap;}
-.week-nav-center {display:flex; flex-direction:column; align-items:center;}
+.week-nav-center {display:flex; flex-direction:column; align-items:center; width: 100%;}
 .week-nav button{border:1px solid var(--border-strong);background:var(--bg-primary);color:var(--text-primary);padding:6px 14px;border-radius:var(--radius-md);font-size:15px;cursor:pointer;transition:background .2s;flex-shrink:0}
 .week-nav button:hover{background:var(--bg-secondary)}
 .week-nav button:active{background:var(--border-default);transform:scale(.96)}
-.week-label{font-size:clamp(12px,3vw,14px);font-weight:500;text-align:center;text-transform:uppercase;letter-spacing:.5px}
+.week-label{font-size:clamp(12px,3vw,14px);font-weight:500;text-align:center;text-transform:uppercase;letter-spacing:.5px; margin-bottom: 5px;}
 
-.btn-print { margin-top:5px; font-size:11px !important; padding:4px 10px !important; background:var(--bg-secondary) !important; color:var(--text-primary) !important; border:1px solid var(--border-strong) !important; display: flex; align-items: center; gap: 5px; }
+/* PRINT BUTTON */
+.btn-print { 
+  margin-top:5px; margin-bottom:5px; font-size:12px !important; padding:8px 16px !important; 
+  background:var(--bg-info) !important; color:#fff !important; 
+  border:1px solid var(--border-info) !important; display: inline-flex; align-items: center; gap: 8px; 
+  border-radius: 6px; cursor: pointer; font-weight: 600; justify-content: center; width: auto; 
+}
+.btn-print:hover { background:#1e40af !important; }
+.btn-print:active { transform: scale(0.96); }
 
 /* DAY CARDS - GRID RESPONSIVE */
 .days-grid{display:grid;grid-template-columns:1fr;gap:10px}
@@ -148,53 +156,60 @@ body{font-family:var(--font-main);background:var(--bg-tertiary);color:var(--text
 }
 
 /* =========================================
-   CONFIGURAÇÃO DE IMPRESSÃO (A4 - Poupa Tinta)
+   SISTEMA DE IMPRESSÃO UNIVERSAL (A4)
    ========================================= */
 @media print {
-  @page { size: A4 portrait; margin: 1.5cm; }
+  /* Forçar cores claras (Light Mode) e fundos brancos puros para poupar tinta */
+  body, html, .app { background: #fff !important; color: #000 !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
   
-  /* Forçar cores claras (Light Mode) para impressão */
-  :root {
-    --bg-primary: #ffffff;
-    --bg-secondary: #ffffff;
-    --bg-tertiary: #ffffff;
-    --text-primary: #000000;
-    --text-secondary: #333333;
-    --border-default: #cccccc;
-  }
-  
-  body { background: white !important; color: black !important; }
-  
-  /* Esconder elementos que não interessam no papel */
-  .tabs, .install-banner, .btn-print, .alert-box, .week-nav button:not(.btn-print) { 
+  /* Esconder UI que não deve ser impressa */
+  .tabs, .install-banner, .btn-print, .week-nav button:not(.btn-print), .add-btn, .emp-edit, .ssl-badge, .alert-box { 
     display: none !important; 
   }
   
-  .app { max-width: 100%; padding: 0; margin: 0; }
-  .header { border-bottom: 2px solid #000; margin-bottom: 15px; }
-  .header h1 { color: black !important; }
+  .header { border-bottom: 2px solid #000; margin-bottom: 15px; padding-bottom: 10px; text-align: center; }
+  .header h1 { color: #000 !important; font-size: 24px; font-weight: bold; }
+  .header-sub { color: #333 !important; font-size: 14px; }
+  .week-nav { justify-content: center !important; margin-bottom: 15px; }
+  .week-label { font-size: 18px !important; font-weight: bold; }
+
+  /* Ajustes para badges para não usar fundos coloridos na impressão */
+  .shift-badge { background: transparent !important; color: #000 !important; border: 1px solid #000 !important; border-radius: 4px !important; }
+  .day-card { background: #fff !important; border: 1px solid #333 !important; box-shadow: none !important; break-inside: avoid; }
+  .emp-row, .swap-card { background: #fff !important; border: 1px solid #ccc !important; color: #000 !important; box-shadow: none !important; break-inside: avoid; }
   
-  /* Estrutura dos dias (Grelha) */
-  .days-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-  
-  .day-card { 
-    border: 1px solid #000; 
-    box-shadow: none; 
-    background: white !important; 
-    page-break-inside: avoid; /* Evita que o cartão seja cortado a meio da página */
+  /* --------------------------------------
+     LAYOUT ESPECÍFICO: SEMANA (HORIZONTAL)
+     -------------------------------------- */
+  body.print-landscape .days-grid { 
+    display: grid !important; 
+    grid-template-columns: repeat(7, 1fr) !important; 
+    gap: 5px !important; 
+    align-items: start;
   }
   
-  .shift-row { border-bottom: 1px solid #eee; }
+  body.print-landscape .day-card { padding: 8px 4px !important; text-align: center; }
+  body.print-landscape .day-header { flex-direction: column; border-bottom: 2px solid #000; margin-bottom: 8px; padding-bottom: 4px; }
+  body.print-landscape .day-name { font-size: 14px; margin-bottom: 2px; }
+  body.print-landscape .day-date { font-size: 11px; color: #555 !important; }
   
-  /* Converter etiquetas coloridas (badges) em contornos para poupar tinta */
-  .shift-badge {
-    background: transparent !important;
-    color: black !important;
-    border: 1px solid black !important;
-  }
+  /* Empilhar nome e turno (coluna) para caber nos 7 dias horizontais */
+  body.print-landscape .shift-row { flex-direction: column; align-items: stretch; padding: 6px 0 !important; border-bottom: 1px dashed #ccc; }
+  body.print-landscape .emp-name { font-size: 12px; font-weight: bold; white-space: normal; line-height: 1.2; margin-bottom: 4px; text-align: center;}
+  body.print-landscape .shift-badge { font-size: 10px; padding: 4px 2px !important; text-align: center; width: 100%; white-space: normal; line-height: 1.2;}
+
+  /* --------------------------------------
+     LAYOUT ESPECÍFICO: MÊS (HORIZONTAL)
+     -------------------------------------- */
+  body.print-landscape .month-grid { grid-template-columns: repeat(7, 1fr) !important; gap: 2px !important; }
+  body.print-landscape .month-cell { min-height: 90px !important; border: 1px solid #000 !important; }
+  body.print-landscape .month-day-hdr { font-size: 12px !important; color: #000 !important; border-bottom: 2px solid #000; }
   
-  .week-nav { justify-content: center; }
-  .ssl-badge { display: none; } /* Esconder selo SSL no papel */
+  /* Garantir cores escuras para imprimir os status no mês */
+  .dot-folga { background: #000 !important; border-radius: 0 !important; width: 6px; height: 6px; }
+  .dot-turno { background: #666 !important; width: 6px; height: 6px; }
+  .dot-falta { background: #000 !important; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); border-radius: 0 !important; }
+  .dot-baixa { background: #ccc !important; border: 1px solid #000; }
 }
 </style>
 </head>
@@ -225,6 +240,7 @@ body{font-family:var(--font-main);background:var(--bg-tertiary);color:var(--text
   <div id="view-trocas" class="view"></div>
 </div>
 
+<!-- Modal editar funcionário -->
 <div class="modal-bg" id="modal-emp">
   <div class="modal">
     <h3 id="modal-title">Editar Funcionário</h3>
@@ -254,6 +270,7 @@ body{font-family:var(--font-main);background:var(--bg-tertiary);color:var(--text
   </div>
 </div>
 
+<!-- Modal alterar turno / falta / baixa por dia -->
 <div class="modal-bg" id="modal-shift">
   <div class="modal">
     <h3 id="modal-shift-title">Alterar Dia</h3>
@@ -304,6 +321,33 @@ let funcionarios = [
   {nome:'Fátima',    turno:'ROTATIVO', folga:[3], fixo:false, grupo:1, cor:'#7f1d1d',tc:'#fecaca'},
   {nome:'Vieira',    turno:'ROTATIVO', folga:[5], fixo:false, grupo:2, cor:'#3f3f46',tc:'#e4e4e7'},
 ];
+
+// --- SISTEMA DE IMPRESSÃO DINÂMICO ---
+function printView(viewName) {
+  // Garantir que a aba correta está ativa antes da impressão
+  switchTab(viewName);
+  
+  // Limpar configurações de impressão dinâmicas antigas
+  let oldStyle = document.getElementById('dynamic-print-style');
+  if (oldStyle) oldStyle.remove();
+  
+  let style = document.createElement('style');
+  style.id = 'dynamic-print-style';
+  
+  // Mês e Semana em A4 Horizontal (Landscape). O Resto em Vertical (Portrait)
+  if (viewName === 'semana' || viewName === 'mes') {
+    style.innerHTML = `@page { size: A4 landscape; margin: 1cm; }`;
+    document.body.classList.add('print-landscape');
+  } else {
+    style.innerHTML = `@page { size: A4 portrait; margin: 1.5cm; }`;
+    document.body.classList.remove('print-landscape');
+  }
+  
+  document.head.appendChild(style);
+  
+  // Pequeno delay para garantir que o navegador redesenha a página
+  setTimeout(() => { window.print(); }, 300);
+}
 
 function getWeekNumber(d){
   let date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
@@ -359,16 +403,17 @@ function renderSemana(){
   const wn=getWeekNumber(days[0]);
   let alerts=[];
   let absentes=[]; 
-  let html=`<div class="week-nav">
+  let html=`
+  <div style="text-align:center; margin-bottom: 15px;">
+    <button onclick="printView('semana')" class="btn-print">&#128438; Imprimir Quadro Semanal (A4 Horizontal)</button>
+  </div>
+  <div class="week-nav">
     <button onclick="changeWeek(-1)">&#8592;</button>
     <div class="week-nav-center">
       <span class="week-label">${fmt2(days[0])} a ${fmt2(days[6])}</span>
-      <button onclick="window.print()" class="btn-print">&#128438; Imprimir A4</button>
+      <div style="font-size:11px;color:var(--text-hint);text-transform:uppercase;letter-spacing:1px">Semana ${wn} &mdash; Escala Automática</div>
     </div>
     <button onclick="changeWeek(1)">&#8594;</button>
-  </div>
-  <div style="text-align:center;margin-bottom:12px;font-size:11px;color:var(--text-hint);text-transform:uppercase;letter-spacing:1px">
-    Semana ${wn} &mdash; Escala Automática
   </div>
   <div class="days-grid">`;
 
@@ -424,7 +469,11 @@ function renderMes(){
   const firstDay=new Date(yr,mo,1).getDay();
   const dim=new Date(yr,mo+1,0).getDate();
   const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  let html=`<div class="week-nav">
+  let html=`
+  <div style="text-align:center; margin-bottom: 15px;">
+    <button onclick="printView('mes')" class="btn-print">&#128438; Imprimir Mês (A4 Horizontal)</button>
+  </div>
+  <div class="week-nav">
     <button onclick="changeMonth(-1)">&#8592;</button>
     <div class="week-nav-center"><span class="week-label">${MESES[mo]} ${yr}</span></div>
     <button onclick="changeMonth(1)">&#8594;</button>
@@ -467,17 +516,28 @@ function monthClick(yr,mo,d){
   const date=new Date(yr,mo,d);
   const ausentes=funcionarios.filter(f=>isFolga(f,date));
   const ativos=funcionarios.filter(f=>!isFolga(f,date));
-  let msg=`${DIAS_FULL[date.getDay()]}, ${d}/${mo+1}/${yr}\n\nA Trabalhar:\n`;
-  ativos.forEach(f=>{msg+=`- ${f.nome} (${getTurnoLabel(f,date)})\n`;});
-  msg+=`\nAusentes:\n`;
-  if(!ausentes.length) msg+='(nenhum)\n';
-  ausentes.forEach(f=>{const st=getStatus(f,date);msg+=`- ${f.nome} [${st}]\n`;});
+  let msg=`${DIAS_FULL[date.getDay()]}, ${d}/${mo+1}/${yr}
+
+A Trabalhar:
+`;
+  ativos.forEach(f=>{msg+=`- ${f.nome} (${getTurnoLabel(f,date)})
+`;});
+  msg+=`
+Ausentes:
+`;
+  if(!ausentes.length) msg+='(nenhum)
+';
+  ausentes.forEach(f=>{const st=getStatus(f,date);msg+=`- ${f.nome} [${st}]
+`;});
   alert(msg);
 }
 function changeMonth(d){currentMonth.setMonth(currentMonth.getMonth()+d);renderMes();}
 
 function renderEquipa(){
-  let html='';
+  let html=`
+  <div style="text-align:center; margin-bottom: 15px;">
+    <button onclick="printView('equipa')" class="btn-print">&#128438; Imprimir Equipa (A4 Vertical)</button>
+  </div>`;
   let baixaCount=0;
   funcionarios.forEach((f,i)=>{
     const ini=f.nome.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
@@ -507,7 +567,12 @@ function renderEquipa(){
 }
 
 function renderTrocas(){
-  let html=`<div class="troca-confirm" id="troca-confirm"></div>`;
+  let html=`
+  <div style="text-align:center; margin-bottom: 15px;">
+    <button onclick="printView('trocas')" class="btn-print">&#128438; Imprimir Folgas (A4 Vertical)</button>
+  </div>
+  <div class="troca-confirm" id="troca-confirm"></div>`;
+  
   html+=`<div class="swap-card">
     <h4 style="color:var(--tab-equipa)">Motor 2.ª Folga Inteligente</h4>
     <p style="font-size:11px;color:var(--text-hint);margin-bottom:10px;line-height:1.5">
@@ -680,7 +745,9 @@ window.addEventListener('beforeinstallprompt',e=>{
   document.getElementById('install-banner').classList.add('show');
 });
 document.getElementById('install-btn').addEventListener('click',async()=>{
-  if(!deferredPrompt){alert('Para instalar:\nAndroid: menu do browser > "Adicionar ao ecrã inicial"\niOS: botão Partilhar > "Adicionar ao ecrã inicial"');return;}
+  if(!deferredPrompt){alert('Para instalar:
+Android: menu do browser > "Adicionar ao ecrã inicial"
+iOS: botão Partilhar > "Adicionar ao ecrã inicial"');return;}
   deferredPrompt.prompt();
   const{outcome}=await deferredPrompt.userChoice;
   deferredPrompt=null;
